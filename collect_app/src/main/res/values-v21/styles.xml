@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="android:colorPrimaryDark">@color/primary_dark_material_dark</item>
+        <item name="android:colorPrimary">@color/primary_material_dark</item>
+        <item name="android:navigationBarColor">@color/primary_material_dark</item>
+        <item name="android:colorAccent">@color/primary_dark_material_dark</item>
+        <item name="colorPrimary">@color/primary_material_dark</item>
+        <item name="colorPrimaryDark">@color/primary_dark_material_dark</item>
+        <item name="colorAccent">?attr/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/abc_primary_text_disable_only_material_dark
+        </item>
+    </style>
+
+    <style name="MyActionBar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/primary_dark_material_dark</item>
+        <item name="android:actionBarDivider">@color/primary_dark_material_dark</item>
+        <item name="android:backgroundSplit">@color/primary_dark_material_dark</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+
+</resources>

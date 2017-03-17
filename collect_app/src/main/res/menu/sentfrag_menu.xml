@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:title="@string/search"
+        android:icon="@drawable/ic_search_black_24dp"
+        app:showAsAction="always"
+        android:id="@+id/sentfrag_search"></item>
+    <item android:icon="@drawable/ic_delete_black_24dp"
+        android:title="@string/delete"
+        android:id="@+id/delete_forms"
+        app:showAsAction="always"/>
+
+    <item android:title="@string/about"
+        app:showAsAction="never"
+        android:id="@+id/about"/>
+    <item android:title="@string/manage_forms"
+        app:showAsAction="never"
+        android:id="@+id/manage_forms"/>
+    <item android:title="@string/general_settings"
+        app:showAsAction="never"
+        android:id="@+id/general_settings"/>
+
+</menu>

@@ -25,6 +25,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -50,6 +51,8 @@ public class FormChooserList extends ListActivity implements DiskSyncListener {
     private static final String syncMsgKey = "syncmsgkey";
 
     private DiskSyncTask mDiskSyncTask;
+    private Button mNewFormButton;
+    private Button mDelFormButton;
 
     private AlertDialog mAlertDialog;
 
@@ -67,6 +70,13 @@ public class FormChooserList extends ListActivity implements DiskSyncListener {
 
         setContentView(R.layout.chooser_list_layout);
         setTitle(getString(R.string.enter_data));
+
+
+
+        mNewFormButton = (Button)findViewById(R.id.fill_new_form_btn);
+        mNewFormButton.setVisibility(View.GONE);
+        mDelFormButton = (Button)findViewById(R.id.del_send_form_btn);
+        mDelFormButton.setVisibility(View.GONE);
 
         String sortOrder = FormsColumns.DISPLAY_NAME + " ASC, " + FormsColumns.JR_VERSION + " DESC";
         Cursor c = managedQuery(FormsColumns.CONTENT_URI, null, null, null, sortOrder);

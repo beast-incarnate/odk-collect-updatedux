@@ -18,5 +18,11 @@ the License.
 
     <drawable name="white">#ffffffff</drawable>
     <drawable name="black">#ff000000</drawable>
+    <color name="blue">#ADD8E6</color>
+    <color name="red">#ff0000</color>
+    <color name="primary_dark_material_dark">#4169e1</color>
+    <color name="primary_material_dark">#4169e1</color>
+    <color name="foreground_material_dark">#4169e1</color>
+    <color name="background_material_dark">#ffffff</color>
 
 </resources>

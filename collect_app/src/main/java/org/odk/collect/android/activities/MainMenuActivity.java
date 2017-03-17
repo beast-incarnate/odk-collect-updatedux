@@ -17,12 +17,14 @@ package org.odk.collect.android.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.TabActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -37,6 +39,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,8 +71,10 @@ import java.util.Map.Entry;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class MainMenuActivity extends Activity {
+public class MainMenuActivity extends TabActivity {
     private static final String t = "MainMenuActivity";
+    private static final String FORMS_TAB = "forms_tab";
+    private static final String DATA_TAB = "data_tab";
 
     private static final int PASSWORD_DIALOG = 1;
 
@@ -114,16 +119,16 @@ public class MainMenuActivity extends Activity {
             return;
         }
 
-        setContentView(R.layout.main_menu);
+        //setContentView(R.layout.main_menu);
 
         {
             // dynamically construct the "ODK Collect vA.B" string
-            TextView mainMenuMessageLabel = (TextView) findViewById(R.id.main_menu_header);
-            mainMenuMessageLabel.setText(Collect.getInstance()
-                    .getVersionedAppName());
+//            TextView mainMenuMessageLabel = (TextView) findViewById(R.id.main_menu_header);
+//            mainMenuMessageLabel.setText(Collect.getInstance()
+//                    .getVersionedAppName());
         }
 
-        setTitle(getString(R.string.main_menu));
+        setTitle(getString(R.string.app_name));
 
         File f = new File(Collect.ODK_ROOT + "/collect.settings");
         if (f.exists()) {
@@ -140,107 +145,145 @@ public class MainMenuActivity extends Activity {
             }
         }
 
-        mReviewSpacer = findViewById(R.id.review_spacer);
-        mGetFormsSpacer = findViewById(R.id.get_forms_spacer);
+        final TabHost tabHost = getTabHost();
+        tabHost.setBackgroundColor(Color.WHITE);
+
+
+        Collect.getInstance().getActivityLogger()
+                       .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
+                Intent i1 = new Intent(getApplicationContext(), InstanceChooserList.class);
+                i1.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+                        ApplicationConstants.FormModes.EDIT_SAVED);
+
+        tabHost.addTab(tabHost
+                    .newTabSpec(DATA_TAB)
+                    .setIndicator("ALL")
+                    .setContent(i1));
+
+
+
+                        Collect.getInstance().getActivityLogger()
+                        .logAction(this, "uploadForms", "click");
+                Intent i2 = new Intent(getApplicationContext(),
+                        InstanceUploaderList.class);
+
+        tabHost.addTab(tabHost
+                    .newTabSpec(DATA_TAB)
+                    .setIndicator("FINALIZED")
+                    .setContent(i2));
+
+                        Collect.getInstance().getActivityLogger().logAction(this,
+                        ApplicationConstants.FormModes.VIEW_SENT, "click");
+                Intent i3 = new Intent(getApplicationContext(), InstanceChooserList.class);
+                i3.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+                        ApplicationConstants.FormModes.VIEW_SENT);
+
+        tabHost.addTab(tabHost
+                    .newTabSpec(FORMS_TAB)
+                    .setIndicator("SENT")
+        .setContent(i3));
+
+//        mReviewSpacer = findViewById(R.id.review_spacer);
+//        mGetFormsSpacer = findViewById(R.id.get_forms_spacer);
 
         mAdminPreferences = this.getSharedPreferences(
                 AdminPreferencesActivity.ADMIN_PREFERENCES, 0);
 
         // enter data button. expects a result.
-        mEnterDataButton = (Button) findViewById(R.id.enter_data);
-        mEnterDataButton.setText(getString(R.string.enter_data_button));
-        mEnterDataButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, "fillBlankForm", "click");
-                Intent i = new Intent(getApplicationContext(),
-                        FormChooserList.class);
-                startActivity(i);
-            }
-        });
+//        mEnterDataButton = (Button) findViewById(R.id.enter_data);
+//        mEnterDataButton.setText(getString(R.string.enter_data_button));
+//        mEnterDataButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Collect.getInstance().getActivityLogger()
+//                        .logAction(this, "fillBlankForm", "click");
+        //        Intent i = new Intent(getApplicationContext(),
+//                        FormChooserList.class);
+//                startActivity(i);
+//            }
+//        });
 
         // review data button. expects a result.
-        mReviewDataButton = (Button) findViewById(R.id.review_data);
-        mReviewDataButton.setText(getString(R.string.review_data_button));
-        mReviewDataButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
-                Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
-                i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
-                        ApplicationConstants.FormModes.EDIT_SAVED);
-                startActivity(i);
-            }
-        });
+//        mReviewDataButton = (Button) findViewById(R.id.review_data);
+//        mReviewDataButton.setText(getString(R.string.review_data_button));
+//        mReviewDataButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Collect.getInstance().getActivityLogger()
+//                        .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
+//                Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
+//                i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+//                        ApplicationConstants.FormModes.EDIT_SAVED);
+//                startActivity(i);
+//            }
+//        });
 
         // send data button. expects a result.
-        mSendDataButton = (Button) findViewById(R.id.send_data);
-        mSendDataButton.setText(getString(R.string.send_data_button));
-        mSendDataButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, "uploadForms", "click");
-                Intent i = new Intent(getApplicationContext(),
-                        InstanceUploaderList.class);
-                startActivity(i);
-            }
-        });
+//        mSendDataButton = (Button) findViewById(R.id.send_data);
+//        mSendDataButton.setText(getString(R.string.send_data_button));
+//        mSendDataButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Collect.getInstance().getActivityLogger()
+//                        .logAction(this, "uploadForms", "click");
+//                Intent i = new Intent(getApplicationContext(),
+//                        InstanceUploaderList.class);
+//                startActivity(i);
+//            }
+//        });
 
         //View sent forms
-        mViewSentFormsButton = (Button) findViewById(R.id.view_sent_forms);
-        mViewSentFormsButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Collect.getInstance().getActivityLogger().logAction(this,
-                        ApplicationConstants.FormModes.VIEW_SENT, "click");
-                Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
-                i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
-                        ApplicationConstants.FormModes.VIEW_SENT);
-                startActivity(i);
-            }
-        });
+//        mViewSentFormsButton = (Button) findViewById(R.id.view_sent_forms);
+//        mViewSentFormsButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Collect.getInstance().getActivityLogger().logAction(this,
+//                        ApplicationConstants.FormModes.VIEW_SENT, "click");
+//                Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
+//                i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+//                        ApplicationConstants.FormModes.VIEW_SENT);
+//                startActivity(i);
+//            }
+//        });
 
         // manage forms button. no result expected.
-        mGetFormsButton = (Button) findViewById(R.id.get_forms);
-        mGetFormsButton.setText(getString(R.string.get_forms));
-        mGetFormsButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, "downloadBlankForms", "click");
-                SharedPreferences sharedPreferences = PreferenceManager
-                        .getDefaultSharedPreferences(MainMenuActivity.this);
-                String protocol = sharedPreferences.getString(
-                        PreferenceKeys.KEY_PROTOCOL, getString(R.string.protocol_odk_default));
-                Intent i = null;
-                if (protocol.equalsIgnoreCase(getString(R.string.protocol_google_sheets))) {
-                    i = new Intent(getApplicationContext(),
-                            GoogleDriveActivity.class);
-                } else {
-                    i = new Intent(getApplicationContext(),
-                            FormDownloadList.class);
-                }
-                startActivity(i);
-
-            }
-        });
+//        mGetFormsButton = (Button) findViewById(R.id.get_forms);
+//        mGetFormsButton.setText(getString(R.string.get_forms));
+//        mGetFormsButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Collect.getInstance().getActivityLogger()
+//                        .logAction(this, "downloadBlankForms", "click");
+//                SharedPreferences sharedPreferences = PreferenceManager
+//                        .getDefaultSharedPreferences(MainMenuActivity.this);
+//                String protocol = sharedPreferences.getString(
+//                        PreferenceKeys.KEY_PROTOCOL, getString(R.string.protocol_odk_default));
+//                Intent i = null;
+//                if (protocol.equalsIgnoreCase(getString(R.string.protocol_google_sheets))) {
+//                    i = new Intent(getApplicationContext(),
+//                            GoogleDriveActivity.class);
+//                } else {
+//                    i = new Intent(getApplicationContext(),
+//                            FormDownloadList.class);
+//                }
+//                startActivity(i);
+//
+//            }
+//        });
 
         // manage forms button. no result expected.
-        mManageFilesButton = (Button) findViewById(R.id.manage_forms);
-        mManageFilesButton.setText(getString(R.string.manage_files));
-        mManageFilesButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, "deleteSavedForms", "click");
-                Intent i = new Intent(getApplicationContext(),
-                        FileManagerTabs.class);
-                startActivity(i);
-            }
-        });
+//        mManageFilesButton = (Button) findViewById(R.id.manage_forms);
+//        mManageFilesButton.setText(getString(R.string.manage_files));
+//        mManageFilesButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Collect.getInstance().getActivityLogger()
+//                        .logAction(this, "deleteSavedForms", "click");
+//                Intent i = new Intent(getApplicationContext(),
+//                        FileManagerTabs.class);
+//                startActivity(i);
+//            }
+//        });
 
         // count for finalized instances
         String selection = InstanceColumns.STATUS + "=? or "
@@ -309,45 +352,45 @@ public class MainMenuActivity extends Activity {
         boolean edit = sharedPreferences.getBoolean(
                 AdminPreferencesActivity.KEY_EDIT_SAVED, true);
         if (!edit) {
-            mReviewDataButton.setVisibility(View.GONE);
-            mReviewSpacer.setVisibility(View.GONE);
+           // mReviewDataButton.setVisibility(View.GONE);
+            //mReviewSpacer.setVisibility(View.GONE);
         } else {
-            mReviewDataButton.setVisibility(View.VISIBLE);
-            mReviewSpacer.setVisibility(View.VISIBLE);
+          //  mReviewDataButton.setVisibility(View.VISIBLE);
+          //  mReviewSpacer.setVisibility(View.VISIBLE);
         }
 
         boolean send = sharedPreferences.getBoolean(
                 AdminPreferencesActivity.KEY_SEND_FINALIZED, true);
         if (!send) {
-            mSendDataButton.setVisibility(View.GONE);
+           // mSendDataButton.setVisibility(View.GONE);
         } else {
-            mSendDataButton.setVisibility(View.VISIBLE);
+            //mSendDataButton.setVisibility(View.VISIBLE);
         }
 
         boolean view_sent = sharedPreferences.getBoolean(
                 AdminPreferencesActivity.KEY_VIEW_SENT, true);
         if (!view_sent) {
-            mViewSentFormsButton.setVisibility(View.GONE);
+          //  mViewSentFormsButton.setVisibility(View.GONE);
         } else {
-            mViewSentFormsButton.setVisibility(View.VISIBLE);
+           // mViewSentFormsButton.setVisibility(View.VISIBLE);
         }
 
         boolean get_blank = sharedPreferences.getBoolean(
                 AdminPreferencesActivity.KEY_GET_BLANK, true);
         if (!get_blank) {
-            mGetFormsButton.setVisibility(View.GONE);
-            mGetFormsSpacer.setVisibility(View.GONE);
+           // mGetFormsButton.setVisibility(View.GONE);
+           // mGetFormsSpacer.setVisibility(View.GONE);
         } else {
-            mGetFormsButton.setVisibility(View.VISIBLE);
-            mGetFormsSpacer.setVisibility(View.VISIBLE);
+           // mGetFormsButton.setVisibility(View.VISIBLE);
+          //  mGetFormsSpacer.setVisibility(View.VISIBLE);
         }
 
         boolean delete_saved = sharedPreferences.getBoolean(
                 AdminPreferencesActivity.KEY_DELETE_SAVED, true);
         if (!delete_saved) {
-            mManageFilesButton.setVisibility(View.GONE);
+           // mManageFilesButton.setVisibility(View.GONE);
         } else {
-            mManageFilesButton.setVisibility(View.VISIBLE);
+           // mManageFilesButton.setVisibility(View.VISIBLE);
         }
 
         ((Collect) getApplication())
@@ -538,13 +581,13 @@ public class MainMenuActivity extends Activity {
             mFinalizedCursor.requery();
             mCompletedCount = mFinalizedCursor.getCount();
             if (mCompletedCount > 0) {
-                mSendDataButton.setText(
-                        getString(R.string.send_data_button, String.valueOf(mCompletedCount)));
+                //mSendDataButton.setText(
+                       // getString(R.string.send_data_button, String.valueOf(mCompletedCount)));
             } else {
-                mSendDataButton.setText(getString(R.string.send_data));
+                //mSendDataButton.setText(getString(R.string.send_data));
             }
         } else {
-            mSendDataButton.setText(getString(R.string.send_data));
+            //mSendDataButton.setText(getString(R.string.send_data));
             Log.w(t,
                     "Cannot update \"Send Finalized\" button label since the database is closed. "
                             + "Perhaps the app is running in the background?");
@@ -554,13 +597,13 @@ public class MainMenuActivity extends Activity {
             mSavedCursor.requery();
             mSavedCount = mSavedCursor.getCount();
             if (mSavedCount > 0) {
-                mReviewDataButton.setText(getString(R.string.review_data_button,
-                        String.valueOf(mSavedCount)));
+                //mReviewDataButton.setText(getString(R.string.review_data_button,
+                  //      String.valueOf(mSavedCount)));
             } else {
-                mReviewDataButton.setText(getString(R.string.review_data));
+                //mReviewDataButton.setText(getString(R.string.review_data));
             }
         } else {
-            mReviewDataButton.setText(getString(R.string.review_data));
+           // mReviewDataButton.setText(getString(R.string.review_data));
             Log.w(t,
                     "Cannot update \"Edit Form\" button label since the database is closed. "
                             + "Perhaps the app is running in the background?");
@@ -570,13 +613,13 @@ public class MainMenuActivity extends Activity {
             mViewSentCursor.requery();
             mViewSentCount = mViewSentCursor.getCount();
             if (mViewSentCount > 0) {
-                mViewSentFormsButton.setText(
-                        getString(R.string.view_sent_forms_button, String.valueOf(mViewSentCount)));
+              //  mViewSentFormsButton.setText(
+                //        getString(R.string.view_sent_forms_button, String.valueOf(mViewSentCount)));
             } else {
-                mViewSentFormsButton.setText(getString(R.string.view_sent_forms));
+               // mViewSentFormsButton.setText(getString(R.string.view_sent_forms));
             }
         } else {
-            mViewSentFormsButton.setText(getString(R.string.view_sent_forms));
+            //mViewSentFormsButton.setText(getString(R.string.view_sent_forms));
             Log.w(t,
                     "Cannot update \"View Sent\" button label since the database is closed. "
                             + "Perhaps the app is running in the background?");

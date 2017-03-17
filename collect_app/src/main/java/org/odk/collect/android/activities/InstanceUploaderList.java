@@ -55,8 +55,7 @@ import java.util.ArrayList;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 
-public class InstanceUploaderList extends ListActivity implements
-        OnLongClickListener {
+public class InstanceUploaderList extends ListActivity{
 
     private static final String BUNDLE_SELECTED_ITEMS_KEY = "selected_items";
     private static final int MENU_PREFERENCES = Menu.FIRST;
@@ -67,6 +66,7 @@ public class InstanceUploaderList extends ListActivity implements
 
     private Button mUploadButton;
     private Button mToggleButton;
+    private Button mNewFormButton;
 
     private boolean mShowUnsent = true;
     private SimpleCursorAdapter mInstances;
@@ -105,6 +105,18 @@ public class InstanceUploaderList extends ListActivity implements
         setContentView(R.layout.instance_uploader_list);
 
         // set up long click listener
+
+        mNewFormButton = (Button)findViewById(R.id.fill_new_form_btn);
+        mNewFormButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Collect.getInstance().getActivityLogger()
+                        .logAction(this, "fillBlankForm", "click");
+                Intent i = new Intent(getApplicationContext(),
+                        FormChooserList.class);
+                startActivity(i);
+            }
+        });
 
         mUploadButton = (Button) findViewById(R.id.upload_button);
         mUploadButton.setOnClickListener(new OnClickListener() {
@@ -148,27 +160,27 @@ public class InstanceUploaderList extends ListActivity implements
             }
         });
 
-        mToggleButton = (Button) findViewById(R.id.toggle_button);
-        mToggleButton.setLongClickable(true);
-        mToggleButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ListView lv = getListView();
-                boolean allChecked = ListViewUtils.toggleChecked(lv);
-                ListViewUtils.toggleButtonLabel(mToggleButton, getListView());
-
-                // sync up internal state
-                mSelected.clear();
-                if (allChecked) {
-                    // add all id's back to mSelected
-                    for (int pos = 0; pos < lv.getCount(); pos++) {
-                        mSelected.add(getListAdapter().getItemId(pos));
-                    }
-                }
-                mUploadButton.setEnabled(allChecked);
-            }
-        });
-        mToggleButton.setOnLongClickListener(this);
+       // mToggleButton = (Button) findViewById(R.id.toggle_button);
+        //mToggleButton.setLongClickable(true);
+//          mToggleButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ListView lv = getListView();
+//                boolean allChecked = ListViewUtils.toggleChecked(lv);
+//                ListViewUtils.toggleButtonLabel(mToggleButton, getListView());
+//
+//                // sync up internal state
+//                mSelected.clear();
+//                if (allChecked) {
+//                    // add all id's back to mSelected
+//                    for (int pos = 0; pos < lv.getCount(); pos++) {
+//                        mSelected.add(getListAdapter().getItemId(pos));
+//                    }
+//                }
+//                mUploadButton.setEnabled(allChecked);
+//            }
+//        });
+       // mToggleButton.setOnLongClickListener(this);
 
         Cursor c = mShowUnsent ? getUnsentCursor() : getAllCursor();
 
@@ -288,27 +300,27 @@ public class InstanceUploaderList extends ListActivity implements
         startActivity(i);
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
-        // get row id from db
-        Cursor c = (Cursor) getListAdapter().getItem(position);
-        long k = c.getLong(c.getColumnIndex(InstanceColumns._ID));
-
-        Collect.getInstance().getActivityLogger()
-                .logAction(this, "onListItemClick", Long.toString(k));
-
-        // add/remove from selected list
-        if (mSelected.contains(k)) {
-            mSelected.remove(k);
-        } else {
-            mSelected.add(k);
-        }
-
-        mUploadButton.setEnabled(mSelected.size() > 0);
-        ListViewUtils.toggleButtonLabel(mToggleButton, getListView());
-    }
+//    @Override
+//    protected void onListItemClick(ListView l, View v, int position, long id) {
+//        super.onListItemClick(l, v, position, id);
+//
+//        // get row id from db
+//        Cursor c = (Cursor) getListAdapter().getItem(position);
+//        long k = c.getLong(c.getColumnIndex(InstanceColumns._ID));
+//
+//        Collect.getInstance().getActivityLogger()
+//                .logAction(this, "onListItemClick", Long.toString(k));
+//
+//        // add/remove from selected list
+//        if (mSelected.contains(k)) {
+//            mSelected.remove(k);
+//        } else {
+//            mSelected.add(k);
+//        }
+//
+//        mUploadButton.setEnabled(mSelected.size() > 0);
+//        //ListViewUtils.toggleButtonLabel(mToggleButton, getListView());
+//    }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -385,14 +397,14 @@ public class InstanceUploaderList extends ListActivity implements
         getListView().invalidate();
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        Collect.getInstance()
-                .getActivityLogger()
-                .logAction(this, "toggleButton.longClick",
-                        "");
-        return showSentAndUnsentChoices();
-    }
+//    @Override
+//    public boolean onLongClick(View v) {
+//        Collect.getInstance()
+//                .getActivityLogger()
+//                .logAction(this, "toggleButton.longClick",
+//                        "");
+//        return showSentAndUnsentChoices();
+//    }
 
     private boolean showSentAndUnsentChoices() {
         /**

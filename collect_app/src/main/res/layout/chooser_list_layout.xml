@@ -13,7 +13,7 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 -->
-<LinearLayout
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
@@ -48,4 +48,25 @@ the License.
 			android:gravity="center"
 			android:background="@drawable/white"
 			android:textColor="@drawable/black" />
+<LinearLayout
+	android:layout_alignParentBottom="true"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+	<Button
+		android:id="@+id/del_send_form_btn"
+		android:background="@color/red"
+		android:text="@string/delete_all_sent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		/>
+	<Button
+		android:id="@+id/fill_new_form_btn"
+		android:background="@color/blue"
+		android:text="@string/fill_out_new_form"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		/>
 </LinearLayout>
+
+</RelativeLayout>

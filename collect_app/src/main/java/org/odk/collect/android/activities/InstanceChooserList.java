@@ -23,16 +23,21 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import org.odk.collect.android.R;
+import org.odk.collect.android.adapters.ListViewAdapter;
 import org.odk.collect.android.adapters.ViewSentListAdapter;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.provider.InstanceProviderAPI;
 import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.utilities.ApplicationConstants;
+
+import java.util.ArrayList;
 
 /**
  * Responsible for displaying all the valid instances in the instance directory.
@@ -45,6 +50,8 @@ public class InstanceChooserList extends ListActivity {
     private static final boolean EXIT = true;
     private static final boolean DO_NOT_EXIT = false;
     private AlertDialog mAlertDialog;
+    private Button mNewFormButton;
+    private Button mDelSendButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,7 @@ public class InstanceChooserList extends ListActivity {
         }
 
         setContentView(R.layout.chooser_list_layout);
+        mDelSendButton = (Button)findViewById(R.id.del_send_form_btn);
         TextView tv = (TextView) findViewById(R.id.status_text);
         tv.setVisibility(View.GONE);
         String selection;
@@ -66,6 +74,7 @@ public class InstanceChooserList extends ListActivity {
         String sortOrder = InstanceColumns.STATUS + " DESC, " + InstanceColumns.DISPLAY_NAME + " ASC";
 
         if (getIntent().getStringExtra(ApplicationConstants.BundleKeys.FORM_MODE).equalsIgnoreCase(ApplicationConstants.FormModes.EDIT_SAVED)) {
+            mDelSendButton.setVisibility(View.GONE);
             setTitle(getString(R.string.review_data));
             selection = InstanceColumns.STATUS + " != ? ";
         } else {
@@ -92,6 +101,82 @@ public class InstanceChooserList extends ListActivity {
         }
 
         setListAdapter(instances);
+
+         c.moveToFirst();
+        ArrayList<String> text1=new ArrayList<>();
+        ArrayList<String> text2=new ArrayList<>();
+        ArrayList<String> text3=new ArrayList<>();
+
+        while(c.moveToNext()){
+
+            text1.add(c.getString(c.getColumnIndex(InstanceColumns.DISPLAY_NAME)));
+            text2.add(c.getString(c.getColumnIndex(InstanceColumns.DISPLAY_SUBTEXT)));
+            text3.add(c.getString(c.getColumnIndex(InstanceColumns.DELETED_DATE)));
+        }
+
+        ListView listView = getListView();
+
+        ListViewAdapter mAdapter = new ListViewAdapter(this,text1,text2,text3);
+        listView.setAdapter(mAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor c = (Cursor) getListAdapter().getItem(position);
+                startManagingCursor(c);
+                Uri instanceUri =
+                        ContentUris.withAppendedId(InstanceColumns.CONTENT_URI,
+                                c.getLong(c.getColumnIndex(InstanceColumns._ID)));
+
+                Collect.getInstance().getActivityLogger().logAction(this, "onListItemClick",
+                        instanceUri.toString());
+
+
+                    String action = getIntent().getAction();
+                    if (Intent.ACTION_PICK.equals(action)) {
+                        // caller is waiting on a picked form
+                        setResult(RESULT_OK, new Intent().setData(instanceUri));
+                    } else {
+                        // the form can be edited if it is incomplete or if, when it was
+                        // marked as complete, it was determined that it could be edited
+                        // later.
+                        String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
+                        String strCanEditWhenComplete =
+                                c.getString(c.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE));
+
+                        boolean canEdit = status.equals(InstanceProviderAPI.STATUS_INCOMPLETE)
+                                || Boolean.parseBoolean(strCanEditWhenComplete);
+                        if (!canEdit) {
+                            createErrorDialog(getString(R.string.cannot_edit_completed_form),
+                                    DO_NOT_EXIT);
+                            return;
+                        }
+                        // caller wants to view/edit a form, so launch formentryactivity
+                   //     Intent parentIntent = new InstanceChooserList().getIntent();
+                        Intent intent = new Intent(Intent.ACTION_EDIT, instanceUri);
+//                        if (parentIntent.getStringExtra(ApplicationConstants.BundleKeys.FORM_MODE).equalsIgnoreCase(ApplicationConstants.FormModes.EDIT_SAVED)) {
+//                            intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
+//                        } else {
+                            intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
+
+                        startActivity(intent);
+                    }
+
+                }
+
+        });
+
+        mNewFormButton = (Button)findViewById(R.id.fill_new_form_btn);
+        mNewFormButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                                Collect.getInstance().getActivityLogger()
+                        .logAction(this, "fillBlankForm", "click");
+                Intent i = new Intent(getApplicationContext(),
+                        FormChooserList.class);
+                startActivity(i);
+            }
+        });
+
     }
 
 
